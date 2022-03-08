@@ -1,0 +1,36 @@
+#cloud-config
+autoinstall:
+    version: 1
+    early-commands:
+        # workaround - To stop ssh for packer as it thinks it timed out
+        - sudo systemctl stop ssh
+    locale: en_US
+    keyboard:
+        layout: en
+        variant: us
+    # Feel free to add or remove the package list as per your use-case.    
+    packages: [ant, cifs-utils, cpanminus, curl, devscripts, fakeroot, debhelper, ifupdown, mariadb-client, openjdk-8-jre-headless, open-vm-tools, openssh-server, open-iscsi, net-tools, ntp, perl, pigz, sshpass, vim, wget, unzip, zip, gnupg2, software-properties-common, apt-transport-https, ca-certificates, lsb-release, python3-pip, jq, libssl-dev, libbz2-dev, libffi-dev, libncurses5-dev, libxml2-dev, libxml2-utils, libexpat1-dev, libglib2.0-dev, libfdt-dev, libpixman-1-dev, zlib1g-dev, libxml-perl, libxml-simple-perl, linux-generic-hwe-20.04]
+    network:
+        network:
+            version: 2
+            ethernets:
+                ens192:
+                    dhcp4: true
+    identity:
+        hostname: packer-vm
+        username: test-user
+        password: "<Encript password using mkpasswd. Refer README.md>"
+    ssh:
+        install-server: true
+        allow-pw: true
+        # authorized-keys:
+        #     - ssh-rsa
+    storage:
+        layout:
+            name: direct
+    user-data:
+        disable_root: false
+    late-commands:
+        - sed -i -e 's/^#\?PasswordAuthentication.*/PasswordAuthentication yes/g' /target/etc/ssh/sshd_config
+        - echo 'test-user ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/test-user
+        - curtin in-target --target=/target -- chmod 440 /etc/sudoers.d/test-user
