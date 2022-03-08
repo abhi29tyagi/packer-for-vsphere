@@ -16,7 +16,7 @@ pipeline {
         stage("Build Docker Image") {
             steps {
                 script {
-                     withCredentials([usernamePassword(credentialsId: 'svc-compute-packaging-login-credentials', passwordVariable: 'loginPASS', usernameVariable: 'loginUSER')]) {
+                     withCredentials([usernamePassword(credentialsId: 'jenkins-user', passwordVariable: 'loginPASS', usernameVariable: 'loginUSER')]) {
                         sh """
                             if [ ${BRANCH} = "origin/master" ]; then
                                 docker build -t ${JOB_BASE_NAME}:stable --build-arg username=${loginUSER} --build-arg password=${loginPASS} .
